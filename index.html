@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An independent analysis of DATA Network's announced move to Sui and Walrus: how provenance, recorded rights, file integrity, and privacy should be tested as one evidence chain.">
+  <meta name="theme-color" content="#1A1A1A">
+  <meta property="og:title" content="A Receipt Is Not a Right: Why AI Training Data Needs More Than Scale">
+  <meta property="og:description" content="What DATA, Trace, Sui, and Walrus could connect—and what an independent reviewer should verify before trusting the evidence.">
+  <title>A Receipt Is Not a Right: Why AI Training Data Needs More Than Scale</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cantarell:wght@400;700&family=Commissioner:wght@400;500;600;700;800;900&family=EB+Garamond:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1A1A1A;
+      --ink-2: #292929;
+      --paper: #F8F8F6;
+      --light: #EFEFEB;
+      --line: #D8D8D4;
+      --muted: #62625E;
+      --highlight: #F6FF00;
+      --sui-blue: #298DFF;
+      --sui-blue-dark: #064E9D;
+      --soft-blue: #EAF3FF;
+      --soft-yellow: #FBFCE7;
+      --soft-green: #F5F5F1;
+      --soft-red: #F5F5F1;
+      --max: 980px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 18px; }
+    body { margin: 0; background: #E7E7E3; color: var(--ink); font-family: "Cantarell", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.76; -webkit-font-smoothing: antialiased; }
+    a { color: #1D5FA8; text-decoration-thickness: 1px; text-underline-offset: 3px; overflow-wrap: anywhere; }
+    a:hover { color: #0B3C75; }
+    a:focus-visible, button:focus-visible { outline: 3px solid var(--sui-blue); outline-offset: 3px; }
+    .shell { width: min(100% - 28px, var(--max)); margin: 26px auto 58px; }
+    .article { background: var(--paper); border: 1px solid #D2D2CE; border-radius: 18px; overflow: hidden; box-shadow: 0 22px 65px rgba(25,25,22,.10); }
+
+    /* Brand treatment: official Data Foundation black/off-white/highlight palette;
+       Sui and Walrus are shown with the supplied logo assets. */
+    .hero { position: relative; overflow: hidden; isolation: isolate; padding: clamp(27px, 6.4vw, 64px); color: var(--paper); background-color: var(--ink); background-image: linear-gradient(96deg, rgba(26,26,26,.98) 0%, rgba(26,26,26,.94) 48%, rgba(26,26,26,.77) 100%), url('https://assets.piplabs.xyz/datafdn.org/brand-kit/06252026/Banners/TDF_Banner_1.jpg'); background-size: cover; background-position: center; }
+    .hero::before { content: ""; position: absolute; z-index: -1; width: 280px; height: 280px; right: -90px; top: -135px; border: 1px solid rgba(246,255,0,.3); border-radius: 50%; box-shadow: 0 0 0 28px rgba(246,255,0,.025), 0 0 0 58px rgba(246,255,0,.025); }
+    .hero::after { content: "RECEIPT ≠ RIGHT"; position: absolute; z-index: -1; right: -12px; bottom: -11px; color: rgba(248,248,246,.065); font-size: clamp(3.3rem, 10vw, 8rem); font-weight: 950; letter-spacing: -.085em; white-space: nowrap; line-height: 1; }
+    .brand-lockup { display: flex; align-items: center; flex-wrap: wrap; gap: 17px; margin: 0 0 32px; min-height: 34px; }
+    .brand-lockup a { color: inherit; text-decoration: none; }
+    .brand-lockup a:focus-visible { outline-color: var(--highlight); border-radius: 3px; }
+    .brand-lockup .tdf-logo { display: block; width: clamp(150px, 22vw, 205px); max-height: 35px; object-fit: contain; object-position: left center; }
+    .brand-lockup .tdf-fallback { display: none; color: var(--paper); font-family: "Commissioner", ui-sans-serif, system-ui, sans-serif; font-size: .9rem; font-weight: 900; letter-spacing: -.035em; }
+    .brand-lockup .divider { width: 1.5px; height: 30px; background: rgba(248,248,246,.7); }
+    .partner-wordmark { display: inline-flex; align-items: center; min-height: 30px; padding: 4px 1px; font-size: 1.16rem; line-height: 1; font-weight: 800; letter-spacing: -.045em; }
+    .partner-wordmark.sui { color: #FFFFFF; }
+    .partner-wordmark.walrus { color: #F8F8F6; letter-spacing: -.055em; }
+    .partner-logo { display: block; width: 34px; height: 34px; object-fit: contain; }
+    .eyebrow { margin: 0; color: var(--highlight); text-transform: uppercase; font-size: .73rem; font-weight: 850; letter-spacing: .17em; }
+    h1 { max-width: 800px; margin: 22px 0 18px; font-family: "Commissioner", ui-sans-serif, system-ui, sans-serif; font-size: clamp(2.55rem, 6.3vw, 5.15rem); letter-spacing: -.067em; line-height: .99; font-weight: 850; }
+    .dek { max-width: 730px; margin: 0; color: #E4E4E2; font-size: clamp(1.08rem, 2.5vw, 1.32rem); line-height: 1.58; }
+    .dek-lead { display: block; margin-bottom: 8px; color: var(--highlight); font-size: .94em; font-weight: 800; letter-spacing: -.025em; }
+    .hero-rule { width: 84px; height: 5px; margin-top: 27px; background: var(--highlight); }
+    .hero-line { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 21px; }
+    .hero-line span { border: 1px solid rgba(248,248,246,.3); padding: 5px 10px; border-radius: 3px; font-size: .76rem; color: #F8F8F6; background: rgba(26,26,26,.32); }
+
+    .metadata { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; padding: 14px clamp(22px, 6.4vw, 64px); border-bottom: 1px solid var(--line); color: var(--muted); font-size: .81rem; background: #FFFFFF; }
+    .metadata .pill { color: var(--ink); background: var(--highlight); border-radius: 2px; padding: 4px 9px; font-weight: 850; }
+    .toc { padding: 19px clamp(22px, 6.4vw, 64px) 22px; background: #FFFFFF; border-bottom: 1px solid var(--line); }
+    .toc .smallcap { margin-bottom: 10px; font-family: "IBM Plex Mono", ui-monospace, monospace; }
+    .toc-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 7px 10px; }
+    .toc-grid a { display: flex; align-items: baseline; gap: 8px; padding: 7px 8px; border: 1px solid #E4E4E2; color: var(--ink); text-decoration: none; font-size: .79rem; line-height: 1.35; background: #FBFBF8; }
+    .toc-grid a:hover { border-color: var(--ink); background: var(--soft-yellow); }
+    .toc-grid span { flex: 0 0 auto; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .69rem; font-weight: 700; color: var(--muted); }
+    .content { padding: 26px clamp(22px, 6.4vw, 64px) 56px; }
+    p { margin: 0 0 1.12em; }
+    .lead { color: #343431; font-size: 1.16rem; line-height: 1.82; }
+    .dropcap:first-letter { float: left; font-size: 3.65em; line-height: .84; padding: .06em .12em 0 0; color: var(--ink); font-weight: 900; }
+    h2 { margin: 2.55em 0 .64em; font-family: "Commissioner", ui-sans-serif, system-ui, sans-serif; font-size: clamp(1.5rem, 3.4vw, 2.05rem); letter-spacing: -.04em; line-height: 1.2; font-weight: 850; scroll-margin-top: 18px; }
+    h2 .n { display: inline-flex; justify-content: center; align-items: center; min-width: 30px; height: 30px; margin-right: 8px; border: 1px solid var(--ink); border-radius: 2px; font-size: .78rem; letter-spacing: 0; vertical-align: 4px; }
+    h3 { margin: 1.45em 0 .42em; font-family: "EB Garamond", Georgia, serif; font-size: 1.25rem; line-height: 1.25; letter-spacing: -.018em; }
+    strong { color: var(--ink); }
+    blockquote { margin: 1.9em 0; padding: 5px 0 5px 22px; border-left: 5px solid var(--highlight); color: var(--ink); font-size: clamp(1.2rem, 2.8vw, 1.52rem); line-height: 1.48; font-weight: 800; letter-spacing: -.03em; }
+    .smallcap { margin: 0 0 12px; text-transform: uppercase; letter-spacing: .13em; color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .7rem; font-weight: 900; }
+    .thesis { margin: 1.65em 0 1.8em; padding: clamp(18px, 3vw, 25px); border: 1px solid var(--line); border-left: 6px solid var(--highlight); background: #FFFFFF; }
+    .thesis h3 { margin: 0 0 8px; font-size: 1.2rem; }
+    .thesis p { margin: 0; color: #44443F; }
+
+    .role-map { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 11px; margin: 1.5em 0 1.8em; }
+    .role-card { min-width: 0; padding: 17px; background: #FFFFFF; border: 1px solid var(--line); border-top: 4px solid var(--ink); }
+    .role-card.foundation { border-top-color: var(--highlight); }
+    .role-card.network { border-top-color: var(--ink); }
+    .role-card.audit { border-top-color: var(--sui-blue); }
+    .role-card .overline { display: block; margin-bottom: 8px; color: var(--muted); font-size: .67rem; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
+    .role-card strong { display: block; margin-bottom: 5px; font-size: 1.02rem; line-height: 1.25; }
+    .role-card p { margin: 0; color: #575751; font-size: .86rem; line-height: 1.55; }
+    .role-card .wordmark-sui { color: var(--sui-blue-dark); }
+    .role-card .wordmark-walrus { letter-spacing: -.04em; }
+    .role-card.sui-role { border-top-color: var(--sui-blue); }
+    .role-card.walrus-role { border-top-color: #6C7584; }
+
+    .verification-lab { margin-top: 16px; padding: 17px; border: 1px solid var(--line); background: #F8F8F6; }
+    .verification-lab h4 { margin: 0 0 7px; font-family: "Commissioner", ui-sans-serif, system-ui, sans-serif; font-size: 1rem; line-height: 1.35; }
+    .verification-lab p { margin-bottom: 10px; font-size: .89rem; }
+    .test-status { display: inline-block; margin: 2px 0 5px; padding: 4px 7px; border: 1px solid #B7B7B0; background: #FFFFFF; font-size: .68rem; line-height: 1.4; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+    .test-code { margin: 12px 0; padding: 15px; overflow-x: auto; background: var(--ink); color: var(--paper); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .77rem; line-height: 1.55; white-space: pre; }
+    .test-code code { font-family: inherit; }
+    .test-note { margin: 0 !important; color: var(--muted); font-size: .8rem !important; }
+
+    .feature { margin: 1.65em 0 1.8em; padding: 22px; border: 1px solid var(--line); background: var(--light); }
+    .feature h3 { margin-top: 0; }
+    .proof-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+    .proof { position: relative; padding: 17px; border: 1px solid #DCDCD7; background: #FFFFFF; }
+    .proof .num { display: inline-flex; width: 29px; height: 29px; align-items: center; justify-content: center; margin-bottom: 10px; background: var(--highlight); color: var(--ink); font-size: .77rem; font-weight: 950; }
+    .proof b { display: block; line-height: 1.35; margin-bottom: 5px; }
+    .proof p { margin: 0; color: var(--muted); font-size: .88rem; line-height: 1.57; }
+
+    .demo { position: relative; margin: 1.6em 0; padding: clamp(18px,3.5vw,27px); border: 1px solid var(--ink); background: #FFFFFF; }
+    .demo::before { content: "TRACE / RECEIPT REVIEW"; position: absolute; top: -10px; left: 17px; padding: 1px 7px; color: var(--ink); background: var(--highlight); font-size: .65rem; font-weight: 950; letter-spacing: .1em; }
+    .demo h3 { margin-top: 5px; }
+    .receipt-meta { display: grid; grid-template-columns: 115px minmax(0,1fr); gap: 0; margin: 13px 0 17px; border: 1px solid var(--line); background: #FBFBF8; }
+    .receipt-meta dt, .receipt-meta dd { margin: 0; padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: .84rem; line-height: 1.5; }
+    .receipt-meta dt { color: var(--muted); font-weight: 750; }
+    .receipt-meta dd { min-width: 0; color: var(--ink); overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .78rem; }
+    .receipt-meta dt:nth-last-of-type(1), .receipt-meta dd:nth-last-of-type(1) { border-bottom: 0; }
+    .demo .receipt-link { display: inline-flex; align-items: center; gap: 7px; margin: 0 0 16px; font-weight: 800; }
+    .can-cannot { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    .can, .cannot { padding: 14px; font-size: .88rem; line-height: 1.6; }
+    .can { background: var(--soft-green); border: 1px solid var(--line); border-left: 4px solid var(--highlight); }
+    .cannot { background: var(--soft-red); border: 1px solid var(--line); border-left: 4px solid #6C7584; }
+    .can b, .cannot b { display: block; margin-bottom: 7px; }
+    .can ul, .cannot ul { margin: 0; padding-left: 1.15em; }
+    .can li, .cannot li { margin: .32em 0; }
+
+    .migration { margin: 1.6em 0; padding: 20px; border: 1px solid var(--line); background: #FFFFFF; }
+    .migration-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; }
+    .migration-head h3 { margin: 0; }
+    .announcement-tag { flex: 0 0 auto; display: inline-block; padding: 4px 7px; color: var(--ink); background: var(--highlight); font-size: .66rem; font-weight: 950; text-transform: uppercase; letter-spacing: .06em; }
+    .migration ul { margin: 0; padding-left: 1.2em; }
+    .migration li { padding-left: .2em; margin: .45em 0; }
+    .status { display: inline-block; padding: 3px 7px; border-radius: 2px; font-size: .67rem; line-height: 1.4; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; }
+    .status.described { background: #E7E7E3; color: #353531; }
+    .status.announced { background: #EAF3FF; color: #064E9D; }
+    .status.future { background: var(--soft-yellow); color: #5D5D22; border: 1px solid #E2E3A8; }
+
+    .chain { margin: 1.6em 0; padding: clamp(17px, 3.4vw, 25px); border: 1px solid var(--ink); background: #FDFDF9; }
+    .chain-title { margin: 0 0 5px; color: var(--ink); font-size: .75rem; font-weight: 950; letter-spacing: .12em; text-transform: uppercase; }
+    .chain-subtitle { color: var(--muted); font-size: .86rem; line-height: 1.55; margin: 0 0 17px; }
+    .steps { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+    .step { position: relative; min-width: 0; min-height: 190px; padding: 14px; border: 1px solid var(--line); border-top: 4px solid var(--ink); background: #FFFFFF; }
+    .step:not(:last-child)::after { content: "→"; position: absolute; z-index: 2; right: -12px; top: 50%; transform: translate(50%,-50%); width: 23px; height: 23px; display: flex; align-items: center; justify-content: center; background: var(--highlight); color: var(--ink); font-size: 1rem; font-weight: 950; }
+    .step.s1 { border-top-color: var(--highlight); }
+    .step.s2 { border-top-color: var(--ink); }
+    .step.s3 { border-top-color: var(--sui-blue); }
+    .step.s4 { border-top-color: #6C7584; }
+    .step .stepno { display: block; font-size: .67rem; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); font-weight: 900; margin-bottom: 8px; }
+    .step b { display: block; line-height: 1.3; font-size: .98rem; margin-bottom: 7px; }
+    .step span.description { display: block; font-size: .81rem; color: var(--muted); line-height: 1.48; }
+    .step .handoff { display: block; margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line); color: var(--ink-2); font-size: .72rem; line-height: 1.42; }
+    .step .handoff strong { font-size: .65rem; text-transform: uppercase; letter-spacing: .05em; }
+    .step .status { margin-top: 10px; }
+    .diagram-legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 16px; color: var(--muted); font-size: .75rem; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-dot { width: 8px; height: 8px; background: var(--ink); display: inline-block; }
+    .legend-dot.yellow { background: var(--highlight); border: 1px solid #C6C700; }
+    .legend-dot.blue { background: var(--sui-blue); }
+    .legend-dot.gray { background: #6C7584; }
+
+    .callout { margin: 1.6em 0; padding: 19px 21px; border-left: 5px solid var(--sui-blue); background: var(--soft-blue); color: #203B57; }
+    .callout strong { color: #132B42; }
+    .callout .label { display: block; margin-bottom: 7px; text-transform: uppercase; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .7rem; letter-spacing: .12em; font-weight: 950; color: var(--ink); }
+    .matrix-wrap { margin: 1.6em 0; overflow-x: auto; border: 1px solid var(--line); background: #FFFFFF; }
+    table { border-collapse: collapse; width: 100%; min-width: 730px; font-size: .86rem; line-height: 1.57; }
+    th { background: var(--ink); color: var(--paper); text-align: left; font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 900; }
+    th, td { padding: 13px 14px; vertical-align: top; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    th:last-child, td:last-child { border-right: 0; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:nth-child(even) td { background: #F6F6F2; }
+    td:first-child { font-weight: 800; width: 20%; }
+    .metric-list { margin: 1em 0; padding: 0; list-style: none; counter-reset: metric; }
+    .metric-list li { counter-increment: metric; position: relative; padding: 13px 14px 13px 52px; margin: 8px 0; border: 1px solid var(--line); background: #FFFFFF; }
+    .metric-list li::before { content: counter(metric, decimal-leading-zero); position: absolute; left: 14px; top: 13px; min-width: 25px; padding: 3px 0; text-align: center; color: var(--ink); background: var(--highlight); font-weight: 950; font-size: .72rem; }
+    .failure-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin: 1.3em 0 1.7em; }
+    .failure { padding: 16px; border: 1px solid var(--line); background: #FFFFFF; }
+    .failure .failure-tag { display: inline-block; margin-bottom: 9px; padding: 3px 7px; background: var(--light); color: var(--ink); font-size: .65rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 950; }
+    .failure strong { display: block; margin-bottom: 6px; line-height: 1.35; }
+    .failure p { margin: 0; font-size: .85rem; color: var(--muted); line-height: 1.56; }
+    .sources { padding-left: 1.25em; }
+    .sources li { margin: .65em 0; padding-left: .15em; }
+    .sources small { display: block; color: var(--muted); font-size: .81rem; line-height: 1.5; }
+    .endnote { padding-top: 18px; margin-top: 2.3em; border-top: 1px solid var(--line); color: var(--muted); font-size: .82rem; }
+    footer { padding: 17px; color: #656560; text-align: center; font-size: .76rem; border-top: 1px solid var(--line); background: #FFFFFF; }
+    footer strong { color: var(--ink); }
+    .brand-sources { margin: 10px 0 0; font-size: .76rem; color: var(--muted); }
+    .brand-sources a { color: inherit; }
+
+    /* Clean editorial backgrounds: abstract tones and gradients, with no digits or text baked into the artwork. */
+    .hero {
+      background-color: #0B0B0B;
+      background-image:
+        radial-gradient(circle at 86% 18%, rgba(246,255,0,.10) 0%, rgba(246,255,0,0) 25%),
+        radial-gradient(circle at 18% 95%, rgba(255,255,255,.045) 0%, rgba(255,255,255,0) 34%),
+        linear-gradient(115deg, #171717 0%, #202020 54%, #111111 100%);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    /* The light artwork stays deliberately subtle; dark body text remains clear. */
+    .matrix-wrap,
+    .receipt-meta,
+    .migration,
+    .chain,
+    .verification-lab {
+      background-color: #F8F8F6;
+      background-image:
+        radial-gradient(circle at 94% 8%, rgba(41,141,255,.035) 0%, rgba(41,141,255,0) 32%),
+        linear-gradient(135deg, rgba(255,255,255,.82) 0%, rgba(239,239,235,.50) 100%);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    .matrix-wrap table { background-color: transparent; }
+    .matrix-wrap tbody tr:nth-child(odd) td { background-color: rgba(255,255,255,.65); }
+    .matrix-wrap tbody tr:nth-child(even) td { background-color: rgba(246,246,242,.68); }
+    .receipt-meta dt,
+    .receipt-meta dd { background-color: rgba(248,248,246,.24); }
+    .migration { background-color: rgba(248,248,246,.92); }
+
+
+    @media (max-width: 740px) {
+      .shell { width: min(100% - 14px, var(--max)); margin: 7px auto 24px; }
+      .article { border-radius: 12px; }
+      .toc-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .role-map { grid-template-columns: 1fr; }
+      .role-card { padding: 15px; }
+      .steps { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .step { min-height: 180px; }
+      .step:not(:last-child)::after { display: none; }
+      .failure-grid { grid-template-columns: 1fr; }
+      .hero::after { font-size: 3.35rem; right: -30px; }
+      .brand-lockup { gap: 12px; margin-bottom: 28px; }
+      .brand-lockup .tdf-logo { width: 160px; }
+    }
+    @media (max-width: 470px) {
+      .toc-grid, .proof-grid, .can-cannot { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .step { min-height: auto; }
+      .receipt-meta { grid-template-columns: 87px minmax(0,1fr); }
+      .receipt-meta dt, .receipt-meta dd { padding: 9px; }
+      .migration-head { display: block; }
+      .announcement-tag { margin-top: 10px; }
+      h1 { font-size: clamp(2.5rem, 13vw, 4rem); line-height: 1.02; }
+      .dek-lead { margin-bottom: 6px; }
+    }
+    @media print {
+      body { background: white; }
+      .shell { width: 100%; margin: 0; }
+      .article { border: 0; box-shadow: none; }
+      .hero { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      a { color: inherit; }
+      .chain, .demo, .feature, .matrix-wrap { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <article class="article">
+      <header class="hero">
+        <div class="brand-lockup" aria-label="DATA Foundation, Sui, and Walrus brand references">
+          <a href="https://www.datafdn.org/brand-guide" aria-label="The DATA Foundation official brand guide">
+            <img class="tdf-logo" src="https://assets.piplabs.xyz/datafdn.org/brand-kit/06252026/Logo/sm/TDF_Logo_White.svg" alt="The DATA Foundation" loading="eager" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-block'"><span class="tdf-fallback">The DATA Foundation</span>
+          </a>
+          <span class="divider" aria-hidden="true"></span>
+          <a href="https://live.standards.site/sui-media-kit" aria-label="Sui official media kit"><img class="partner-logo" alt="Sui logo" src="data:image/jpeg;base64,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" loading="eager"></a>
+          <span class="divider" aria-hidden="true"></span>
+          <a href="https://drive.google.com/drive/folders/1rklvwojMC0NnpkunNySqLgXizHxcmazl" aria-label="Walrus official brand kit"><img class="partner-logo" alt="Walrus logo" src="data:image/png;base64,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" loading="eager"></a>
+        </div>
+        <p class="eyebrow">Independent analysis · DATA on Sui</p>
+        <h1>A Receipt Is Not a Right</h1>
+        <p class="dek"><span class="dek-lead">Why AI training data needs more than scale.</span>DATA Network’s announced move to Sui and Walrus could connect a contribution’s history, the rights recorded against it, and the file itself. The opportunity is real; the end-to-end evidence still has to earn trust.</p>
+        <div class="hero-rule" aria-hidden="true"></div>
+        <div class="hero-line"><span>Provenance</span><span>Programmable rights</span><span>File integrity</span><span>Privacy boundaries</span></div>
+      </header>
+
+      <div class="metadata">
+        <span class="pill">Deep Dive</span>
+        <span>October 2026</span><span aria-hidden="true">·</span>
+        <span>Estimated reading time: 12–13 minutes</span>
+      </div>
+
+      <nav class="toc" aria-label="Article contents">
+        <p class="smallcap">In this analysis</p>
+        <div class="toc-grid">
+          <a href="#four-proofs"><span>01</span> Four kinds of proof</a>
+          <a href="#trace"><span>02</span> DATA and Trace</a>
+          <a href="#move-to-sui"><span>03</span> What “DATA on Sui” means</a>
+          <a href="#sui"><span>04</span> Programmable rights on Sui</a>
+          <a href="#walrus"><span>05</span> Walrus: integrity and privacy</a>
+          <a href="#architecture"><span>06</span> How the pieces fit</a>
+          <a href="#buyer-checklist"><span>07</span> Buyer checklist</a>
+          <a href="#governance"><span>08</span> Governance and failure modes</a>
+          <a href="#conclusion"><span>→</span> Conclusion</a>
+        </div>
+      </nav>
+
+      <div class="content">
+        <p class="lead dropcap">Imagine an AI lab is offered one million voice recordings. The files are neatly formatted and ready for training. Before signing, though, the lab asks four questions: who contributed them, what did those people agree to, can the lab match the files to the records, and does the intended training use fall within the rights that were granted?</p>
+        <p>A vendor can say, “Trust us.” A spreadsheet may answer part of the question. A contract may define obligations. A file hash can help identify a particular byte sequence. But these pieces often live in separate systems, controlled by different parties, with no clear way to inspect the full chain.</p>
+        <p>That is a less visible AI bottleneck. The industry has become skilled at scaling compute and models. What remains harder is keeping evidence about a human contribution connected to the contribution itself as it moves from a person to an app, through licensing, and into an AI lab’s workflow.</p>
+        <p>This is the useful lens for examining the October 12, 2026 announcement that DATA Network and Trace are joining the Sui stack, with Walrus as the planned default storage layer for DATA Foundation applications. The design connects components with different jobs. Its success depends on preserving those boundaries—and proving that the handoffs work in practice.</p>
+
+        <section class="thesis" aria-labelledby="central-argument">
+          <p class="smallcap">The central argument</p>
+          <h3 id="central-argument">A receipt is evidence—not a universal permission slip.</h3>
+          <p>The useful question is not “Is this dataset onchain?” It is: <strong>which claims can an independent reviewer verify, which still depend on an app or a contract, and who is accountable for the gap?</strong></p>
+        </section>
+
+        <p class="smallcap">First, separate the responsibilities</p>
+        <div class="role-map" role="group" aria-label="Roles of DATA Foundation, DATA Network, Trace, Sui, and Walrus">
+          <div class="role-card foundation">
+            <span class="overline">Stewardship</span>
+            <strong>The DATA Foundation</strong>
+            <p>The governance and stewardship entity behind the network—not the product or protocol itself.</p>
+          </div>
+          <div class="role-card network">
+            <span class="overline">Open protocol</span>
+            <strong>DATA Network</strong>
+            <p>The protocol for sourcing, proving, and processing human-contributed data for AI use.</p>
+          </div>
+          <div class="role-card audit">
+            <span class="overline">Public audit layer</span>
+            <strong>Trace</strong>
+            <p>Exposes contribution receipts and related provenance or rights evidence. Sensitive identity data should remain off the public record wherever the app design permits.</p>
+          </div>
+          <div class="role-card sui-role">
+            <span class="overline">Programmable coordination</span>
+            <strong>Sui</strong>
+            <p>Can represent datasets, licenses, and supported permission checks as onchain objects. The deployed implementation still needs testing.</p>
+          </div>
+          <div class="role-card walrus-role">
+            <span class="overline">File storage and reference</span>
+            <strong>Walrus</strong>
+            <p>Stores data blobs and supports integrity-oriented references. Blobs are public by default; encryption and key/access policy must be handled separately.</p>
+          </div>
+        </div>
+        <p>For clarity: DATA Foundation is the steward; DATA Network is the protocol; Trace is the audit layer; Sui is the programmable coordination layer; Walrus is the storage layer; and $DATA is the token.</p>
+
+        <h2 id="four-proofs"><span class="n">01</span>Four kinds of proof are easy to confuse</h2>
+        <p>Provenance discussions become vague when the word “verified” is expected to do too much work. For AI training data, at least four distinct claims must be kept separate.</p>
+        <div class="proof-grid" role="group" aria-label="Four separate evidence claims in AI training data">
+          <div class="proof"><span class="num">01</span><b>Registration proof</b><p>A record can show that a contribution was registered at a particular time with associated receipt data.</p></div>
+          <div class="proof"><span class="num">02</span><b>File-integrity proof</b><p>A cryptographic commitment can help check whether a file matches the exact file referenced by a record.</p></div>
+          <div class="proof"><span class="num">03</span><b>Recorded-rights evidence</b><p>Consent and policy records can show which terms were recorded. They do not automatically prove informed or legally sufficient consent.</p></div>
+          <div class="proof"><span class="num">04</span><b>Use-compliance evidence</b><p>A license may define allowed uses. Its existence alone cannot prove that every later model, buyer, or downstream customer followed it.</p></div>
+        </div>
+        <p>These claims answer different questions; none should be allowed to substitute for another.</p>
+        <blockquote>Trust should not be a badge attached to a dataset. It should be a chain of claims, each with a clear source and a clear limit.</blockquote>
+
+        <h2 id="trace"><span class="n">02</span>DATA and Trace: make the history inspectable</h2>
+        <p>DATA Network provides the broader network context. The DATA Foundation describes Trace as a public audit layer for registered AI training data. Its stated role is to make relevant contribution evidence inspectable without requiring every original file or every sensitive value to be public.</p>
+        <p>Trace’s public description covers receipts and related provenance or policy evidence. Some sensitive metadata can remain with the contributing app while auditors inspect the record. That boundary is useful only when reviewers can distinguish what is public, what the app asserts, and what the receipt does not independently verify.</p>
+        <p>The October 12 Sui Foundation announcement reported more than <strong>250 million registered contributions</strong> and an average of over <strong>3 million receipts per day</strong>. These are project-reported figures, not an independent performance audit; volume does not prove that rights and storage handoffs work end to end.</p>
+
+        <div class="demo" aria-labelledby="receipt-heading">
+          <p class="smallcap">A receipt checked against the public record</p>
+          <h3 id="receipt-heading">What one live Trace receipt can—and cannot—show</h3>
+          <p>I reviewed the public Trace receipt linked below. Its visible record lists an image contributed through Kled, a full SHA-256 content digest, and all five lifecycle stages. This verifies the values displayed by the receipt; it does <strong>not</strong> mean I independently recomputed the digest against the original image. Trace says it stores receipts rather than the underlying asset, and the original bytes were not available for a local comparison during this review.</p>
+          <dl class="receipt-meta">
+            <dt>Data ID</dt><dd>e940df91-ad83-570e-9690-29408fa9b6b8</dd>
+            <dt>Media / size</dt><dd>Image · JPEG · 159.1 KB (162,943 bytes)</dd>
+            <dt>Recorded content hash</dt><dd>SHA-256: 7150011355465cdbe21d09ad97b9f30c3d4f6db7144b5aa8a4311f406aab3fe5</dd>
+            <dt>Contributing app</dt><dd>Kled (kled.ai)</dd>
+            <dt>Lifecycle</dt><dd>Captured → Uploaded → Attested → Registered → Anchored on-chain (5 of 5 recorded)</dd>
+            <dt>Consent fields</dt><dd>The receipt marks its Terms of Service and Privacy Policy as accepted. That is evidence of recorded acceptance, not a legal ruling on whether consent was informed or sufficient.</dd>
+            <dt>Review limit</dt><dd>Public receipt and recorded digest checked. The page shows different registration times across panels; the original-file SHA-256 recomputation was not performed.</dd>
+          </dl>
+          <a class="receipt-link" href="https://trace.datafdn.org/asset/e940df91-ad83-570e-9690-29408fa9b6b8" target="_blank" rel="noopener">Open the live public Trace receipt <span aria-hidden="true">↗</span></a>
+          <div class="can-cannot">
+            <div class="can"><b>What the receipt can support</b><ul><li>A public record with a Data ID, media type, file size, and recorded SHA-256 digest.</li><li>Lifecycle and provider-attestation details shown by Trace.</li><li>The consent and policy versions recorded for this contribution.</li><li>A reproducible reference that another reviewer can inspect.</li></ul></div>
+            <div class="cannot"><b>What it cannot establish alone</b><ul><li>That the original image bytes have been independently matched to the recorded digest by this article.</li><li>That consent was informed or legally sufficient.</li><li>That promised compensation settled successfully.</li><li>That every downstream use complies with the recorded terms.</li></ul></div>
+          </div>
+          <div class="verification-lab" aria-label="Reproducible SHA-256 integrity check">
+            <h4>Reproduce the file-integrity check</h4>
+            <p>To perform the actual byte-for-byte test, obtain an authorized copy of the exact original image, save it locally as <code>candidate-original-file</code>, and run this snippet. Do not use a screenshot, browser thumbnail, or re-encoded copy: SHA-256 changes when the underlying bytes change.</p>
+            <span class="test-status">Receipt digest confirmed · original-file comparison not run</span>
+            <pre class="test-code"><code>from pathlib import Path
+import hashlib
+
+candidate = Path("candidate-original-file")
+if not candidate.is_file():
+    raise SystemExit("Save the exact original file as candidate-original-file first")
+
+# Copied from file.content_sha256 on the public Trace receipt.
+expected = "7150011355465cdbe21d09ad97b9f30c3d4f6db7144b5aa8a4311f406aab3fe5"
+actual = hashlib.sha256(candidate.read_bytes()).hexdigest()
+
+print("MATCH" if actual == expected else "MISMATCH")
+print("computed:", actual)</code></pre>
+            <p class="test-note"><strong>Interpretation:</strong> MATCH would show that the candidate bytes match the digest recorded in this receipt, provided the file is the exact original contribution. MISMATCH means stop and investigate the file version or reference; it does not by itself prove wrongdoing. Neither result alone proves informed consent, payment, legal permission, or compliant model use. This comparison has not been run here because the original bytes were not available.</p>
+          </div>
+        </div>
+        <p>A receipt preserves evidence submitted by a workflow; it cannot recover context that was never collected or independently validate every assertion. Consent quality still depends on how the contribution was obtained.</p>
+
+        <h2 id="move-to-sui"><span class="n">03</span>What “DATA on Sui” actually means for the protocol</h2>
+        <p>The announcement describes more than Trace using Sui: DATA Network itself is planned to become a native protocol on Sui. The Foundation’s FAQ says the transition will happen in phases.</p>
+        <div class="migration">
+          <div class="migration-head"><h3>The announced transition, without guessing at a date</h3><span class="announcement-tag">Plan announced · timeline pending</span></div>
+          <ul>
+            <li><strong>Native protocol:</strong> DATA Network is planned to run as a protocol natively on Sui.</li>
+            <li><strong>Independent chain:</strong> the existing standalone chain is expected to be retired after the upgrade is complete.</li>
+            <li><strong>Continuity before migration:</strong> the existing network continues operating while the transition is prepared.</li>
+            <li><strong>$DATA:</strong> the announced plan says balances move on a 1:1 basis, with holder economics and governance rights intended to remain at least equivalent; locked and vesting positions are expected to carry over.</li>
+            <li><strong>Holder action:</strong> the Foundation’s FAQ says no action is required from holders at this time. A detailed timeline and transition plan are to be published ahead of the relevant steps.</li>
+          </ul>
+        </div>
+        <p>That is what “DATA on Sui” means: the protocol itself is intended to become native to Sui, not merely connect to Sui or store files through Walrus. The stated goal is to reduce the overhead of maintaining a standalone chain and use Sui’s object model.</p>
+        <p>The 1:1 ratio, governance continuity, and vesting treatment remain announced transition terms—not proof that migration is complete. The FAQ says holders need take no action now; do not invent a date or tell holders to migrate manually.</p>
+
+        <h2 id="sui"><span class="n">04</span>Sui: give rights and data relationships a programmable home</h2>
+        <p>A receipt records history. Applications also need to manage what happens next: which dataset is being licensed, which terms apply, who may perform a supported operation, and how one asset relates to another.</p>
+        <p>Sui’s object-centric model gives onchain resources unique IDs, ownership information, versions, and related data. In the announced integration, datasets and licenses are presented as candidates for programmable objects. That could let applications reference a common rights-bearing asset and coordinate supported actions through shared infrastructure instead of stitching together separate databases and bespoke integrations for every partner.</p>
+        <p>For example, a license object might identify a defined dataset and encode machine-readable conditions. An application could check those conditions before allowing a supported operation, and a later state change could be recorded. This is a design enabled by programmable infrastructure—not a claim that every real-world licensing term is automatically enforced onchain today.</p>
+        <div class="callout"><span class="label">A hard boundary</span><strong>Smart contracts can enforce rules they encode and control.</strong> They cannot independently observe every offline action, decide whether a person legally consented, or guarantee that a trained model will never be used outside its license. A permission object is only as useful as its implementation, its link to the real file, and the checks performed by applications using it.</div>
+        <p>Sui’s role is therefore not to certify that a dataset is ethical or lawful. It is to offer a programmable coordination layer where assets, permissions, ownership, and operations can be represented more consistently—and audited at the level the implementation actually supports.</p>
+
+        <h2 id="walrus"><span class="n">05</span>Walrus: connect the record to the file—without confusing integrity with privacy</h2>
+        <p>A receipt is not the original file. The Sui announcement describes Walrus as the default storage layer for DATA Foundation applications and announces a planned extension in which Trace can reference an encrypted, immutable copy of a contribution. If delivered and independently testable, this could let a reviewer recompute a hash from candidate bytes and compare it with the reference rather than relying only on app-supplied metadata.</p>
+        <p><strong>Integrity is not confidentiality.</strong> Walrus documentation says blobs are public by default and Walrus does not provide native encryption. Sensitive plaintext must not be uploaded without a suitable encryption and key-management design. The DATA–Trace workflow still needs to demonstrate how encryption, keys, and permitted access actually work. A matching hash supports file integrity; it does not prove consent or lawful use.</p>
+
+        <h2 id="architecture"><span class="n">06</span>How the pieces are intended to fit together</h2>
+        <p>The architecture is easiest to assess as a chain of responsibilities. The following diagram is conceptual: it distinguishes the roles described today from integration steps that were announced as future work.</p>
+        <div class="chain" role="group" aria-label="Conceptual flow: contributor application to Trace receipt, then Sui coordination, then Walrus file reference. The final two integration steps are announced plans, not claims that every end-to-end feature is live.">
+          <p class="chain-title">The intended evidence chain</p>
+          <p class="chain-subtitle">This is a logical verification path, not proof that every integration step is live or that infrastructure calls must execute in this exact order.</p>
+          <div class="steps">
+            <div class="step s1"><span class="stepno">Step 01 · Collect</span><b>Contributor app</b><span class="description">Captures the source and presents terms; evidence quality depends on the app.</span><span class="handoff"><strong>Evidence output</strong><br>Source event + terms version</span><span class="status described">App-dependent</span></div>
+            <div class="step s2"><span class="stepno">Step 02 · Register</span><b>Trace receipt</b><span class="description">Makes registration and associated provenance or policy evidence discoverable.</span><span class="handoff"><strong>Evidence output</strong><br>Receipt ID + recorded policy</span><span class="status described">Existing audit layer</span></div>
+            <div class="step s3"><span class="stepno">Step 03 · Coordinate</span><b>Sui objects</b><span class="description">Could represent dataset/license relationships and supported permission checks as programmable objects.</span><span class="handoff"><strong>Expected output</strong><br>Dataset/license object ID</span><span class="status announced">Integration announced</span></div>
+            <div class="step s4"><span class="stepno">Step 04 · Reference</span><b>Walrus file layer</b><span class="description">The planned extension would reference an encrypted original; the actual permission and key path still needs testing.</span><span class="handoff"><strong>Expected output</strong><br>Blob reference + file digest</span><span class="status future">Verify in deployment</span></div>
+          </div>
+          <div class="diagram-legend" aria-label="Diagram legend"><span class="legend-item"><i class="legend-dot yellow"></i>Contribution source</span><span class="legend-item"><i class="legend-dot"></i>Described existing layer</span><span class="legend-item"><i class="legend-dot blue"></i>Announced Sui integration</span><span class="legend-item"><i class="legend-dot gray"></i>Planned storage extension</span></div>
+        </div>
+        <p>The handoff should expose a Trace receipt ID, file digest, policy version, Sui object/license ID (when deployed), and the app’s permission-decision log. A missing link is an unresolved check—not “verified.” Those joins, rather than a diagram of connected logos, are the product to test.</p>
+
+        <h2 id="buyer-checklist"><span class="n">07</span>The buyer’s checklist and the tests that matter</h2>
+        <p>Before adopting a dataset, a review team should be able to ask practical questions and demand evidence that could fail a test. The last column below is deliberate: even good technical evidence leaves some questions for human, legal, or operational judgment.</p>
+        <div class="matrix-wrap" role="region" aria-label="Buyer evidence checklist" tabindex="0">
+          <table>
+            <thead><tr><th>Question</th><th>Evidence to request</th><th>Acceptance test</th><th>What still needs judgment</th></tr></thead>
+            <tbody>
+              <tr><td>Was the contribution registered?</td><td>A Trace receipt plus the relevant registration evidence.</td><td>An independent reviewer can find the record and reproduce the lookup.</td><td>Whether the original collection process was appropriate.</td></tr>
+              <tr><td>Is this the referenced file?</td><td>A content commitment and a reproducible hash-check procedure.</td><td>The candidate file matches the recorded reference; a changed file fails.</td><td>Whether the content is accurate, safe, or suitable for the intended model.</td></tr>
+              <tr><td>Which terms applied?</td><td>The relevant consent and policy versions with event history.</td><td>A reviewer can identify the version associated with the contribution.</td><td>Whether consent was informed, valid, and sufficient for this use.</td></tr>
+              <tr><td>Who can read the file?</td><td>Encryption design, key-management responsibilities, and access-control tests.</td><td>Unauthorized access fails in practice; plaintext is not accidentally public.</td><td>Whether the controls remain safe across every app and operational boundary.</td></tr>
+              <tr><td>Does downstream use comply?</td><td>Machine-readable terms where possible, app controls, logs, and contractual evidence.</td><td>Supported operations check the rights before granting access or use.</td><td>Actions outside the system that it cannot observe or technically enforce.</td></tr>
+              <tr><td>Was payment completed?</td><td>A receipt of the contribution and a distinct record of settlement when payment is promised.</td><td>The audit trail differentiates a registered contribution from a completed payment.</td><td>Whether the payment terms were fair and the amount correct.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Volume proves activity, not correctness. A credible rollout should publish reproducible evidence in three areas:</p>
+        <ol class="metric-list">
+          <li><strong>Record-to-file continuity.</strong> An independent reviewer can reproduce the lookup, match the candidate file to its reference, and identify the policy version attached to that contribution.</li>
+          <li><strong>Consent and privacy controls.</strong> The system distinguishes the terms recorded at contribution time from later changes, while documented encryption and access tests show that confidential plaintext is not accidentally exposed.</li>
+          <li><strong>Accountability when evidence conflicts.</strong> The workflow identifies who investigates mismatches or disputed consent, how corrections and restrictions are recorded, and how affected buyers are notified.</li>
+        </ol>
+
+        <h2 id="governance"><span class="n">08</span>The hard part is governance, not just cryptography</h2>
+        <p>Technical components cannot make unfair collection fair after the fact. Apps must capture accurate records and understandable terms; buyers must inspect evidence beyond a verification badge. When consent is disputed, a license expires, deletion is requested, or a record is wrong, the workflow needs a transparent way to preserve history while recording later restrictions and corrections.</p>
+        <p>Three failure drills reveal whether that governance is real:</p>
+        <div class="failure-grid" role="group" aria-label="Three failure drills for the proposed system">
+          <div class="failure"><span class="failure-tag">Failure drill 01</span><strong>The file does not match</strong><p>The hash check fails. The buyer should not quietly proceed; the system needs to flag the mismatch and identify which party resolves it.</p></div>
+          <div class="failure"><span class="failure-tag">Failure drill 02</span><strong>The consent record is disputed</strong><p>A durable receipt should preserve the original record while the workflow records the dispute, its status, and any new restriction.</p></div>
+          <div class="failure"><span class="failure-tag">Failure drill 03</span><strong>The file is exposed</strong><p>The team needs an incident process for affected contributors and buyers, including what can be rotated, revoked, restricted, or replaced.</p></div>
+        </div>
+        <p>Public auditability should not expose sensitive identity details or recordings. Because Walrus blobs are public by default, the implementation must document what is encrypted, who controls the keys, and which metadata remains visible.</p>
+
+        <div class="callout author-perspective">
+          <span class="label">My perspective</span>
+          <p><strong>For me, the meaningful test is not simply whether DATA moves onto another chain. It is whether a contributor, buyer, or auditor can follow one asset from its recorded consent terms to the exact file and the use that was permitted.</strong></p>
+          <p>The receipt I reviewed exposes a content digest and lifecycle evidence, but the original image is not hosted by Trace. I could confirm the digest written in the public record; I could not recompute it against the original bytes. That is an important distinction, not a gotcha: it identifies the handoff the Sui–Walrus integration needs to make dependable. If independent file checks, privacy controls, and rights history work together, the migration can make trust cheaper to evaluate. If users still have to trust a dashboard without a reproducible path to the underlying evidence, the infrastructure may move while the trust gap remains.</p>
+        </div>
+
+        <h2 id="conclusion">Conclusion: proof should follow the data</h2>
+        <p>AI supply chains need human-contributed speech, images, video, and specialist knowledge—but scale is useful only when evidence survives procurement and later review. Buyers should be able to trace a contribution from receipt to exact file, identify the policy version, and inspect how permission was decided.</p>
+        <p>The roles are complementary: Trace exposes the record; Sui is the announced coordination layer; Walrus is the planned file-reference and storage layer. Each handoff must be testable, and file integrity must never be mistaken for consent or lawful use.</p>
+        <blockquote>The goal is not to put trust on a blockchain. It is to make specific claims easier to check—and the limits of those claims harder to ignore.</blockquote>
+
+        <h2 id="sources">Sources and further reading</h2>
+        <ol class="sources">
+          <li><a href="https://www.sui.io/blog/data-network-joins-sui-walrus" target="_blank" rel="noopener">Sui Foundation — DATA Network joins Sui and Walrus</a><small>October 12, 2026. The announced integration, the contribution metrics reported at publication, and the planned encrypted reference-file capability.</small></li>
+          <li><a href="https://www.datafdn.org/faqs" target="_blank" rel="noopener">DATA Foundation — FAQs on the Sui integration</a><small>Phased migration framing, $DATA transition notes, and the statement that holders do not need to act at this time.</small></li>
+          <li><a href="https://trace.datafdn.org/" target="_blank" rel="noopener">Trace — Public audit and search platform</a><small>Public description of receipt lookup, recorded content hashes, and Trace's role as an audit layer rather than a content host.</small></li>
+          <li><a href="https://trace.datafdn.org/asset/e940df91-ad83-570e-9690-29408fa9b6b8" target="_blank" rel="noopener">Live Trace image receipt reviewed for this article</a><small>Public record lists Data ID e940df91-ad83-570e-9690-29408fa9b6b8, file size 159.1 KB, and content_sha256 sha256:7150011355465cdbe21d09ad97b9f30c3d4f6db7144b5aa8a4311f406aab3fe5. The original file bytes were not available for independent recomputation, so the article does not claim a byte-level match.</small></li>
+          <li><a href="https://docs.sui.io/develop/sui-architecture/object-model" target="_blank" rel="noopener">Sui Documentation — Object Model</a><small>Unique object identifiers, ownership, versions, and associated onchain data.</small></li>
+          <li><a href="https://docs.wal.app/docs/data-security" target="_blank" rel="noopener">Walrus Documentation — Data Security</a><small>Data availability and integrity, and the explicit distinction between integrity and confidentiality.</small></li>
+          <li><a href="https://docs.wal.app/docs/sites/security/access-control-options" target="_blank" rel="noopener">Walrus Documentation — Access Control Options</a><small>Public-by-default storage and the need to encrypt confidential application data before storage.</small></li>
+          <li><a href="https://x.com/datafdn/status/2109468220273123382" target="_blank" rel="noopener">DATA Foundation — Official campaign announcement</a><small>Contest context and announcement reference.</small></li>
+        </ol>
+        <p class="endnote">This article distinguishes public descriptions from future integration steps announced on October 12, 2026. The checklist, failure drills, and author perspective are an independent evaluation framework—not a claim that the complete integration has passed end-to-end tests. The recorded SHA-256 below was checked against the live public Trace receipt; the original image bytes were not available for an independent local recomputation, so no byte-level match is claimed.</p>
+      </div>
+    </article>
+  </main>
+</body>
+</html>
